@@ -5,8 +5,8 @@ import numpy as np
 # --- 0. 설정 및 최종 컬럼 매핑 정의 ---
 
 FILE_PATHS = {
-    'file1': 'data/welcome1.xlsx',
-    'file2': 'data/welcome2.xlsx'
+    'file1': 'data/Welcome/Welcome_1st.xlsx',
+    'file2': 'data/Welcome/welcome_2nd.xlsx'
 }
 MERGE_KEY = 'panel_id'
 OUTPUT_JSON_PATH = 'merged_data.json'
@@ -42,7 +42,7 @@ FINAL_COLUMN_MAPPING = {
     '흡연경험': 'smoking_experience',   # multi
     '흡연경험 담배브랜드': 'smoking_brand', # multi
     '흡연경험 담배브랜드(기타브랜드)': 'smoking_brand_etc',
-    '궐련형 전자담배/가열식 전자담배 이용경험': 'e_cigarette_experience',   # multi
+    '궐련형 전자담배/가열식 전자담배 이용경험': 'e_cigarette_experience',   # multi',
     '흡연경험 담배 브랜드(기타내용)': 'smoking_brand_other_details',    # multi
     '음용경험 술': 'drinking_experience',
     '음용경험 술(기타내용)': 'drinking_experience_other_details',   # string
@@ -94,6 +94,9 @@ def load_and_standardize_file(path, final_mapping):
         # data sheet
         df_data = xlsx.parse(xlsx.sheet_names[0])
 
+        # Skip the first row of data, which seems to be a duplicate header
+        df_data = df_data.iloc[1:].reset_index(drop=True)
+
         # 데이터 시트의 모든 컬럼 순회하면서
         for col in df_data.columns:
             # 해당 컬럼(Q-code)에 대해 value_labels가 존재하는지 확인한다
@@ -125,7 +128,7 @@ def integrate_and_finalize(file_paths, final_mapping):
     
     df1, q_map1, v_map1 = load_and_standardize_file(file_paths['file1'], final_mapping)
     df2, q_map2, v_map2 = load_and_standardize_file(file_paths['file2'], final_mapping)
-    
+
     # Merge DataFrames
     df_merged = pd.merge(df1, df2, on=MERGE_KEY, how='outer', suffixes=('_f1', '_f2'))
 
